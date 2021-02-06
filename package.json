@@ -1,0 +1,21 @@
+{
+  "name": "speiz-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/speiz.js",
+    "start:dev": "nodemon ./src/speiz.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "pg-promise": "^10.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}
