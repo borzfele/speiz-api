@@ -39,10 +39,33 @@ app.post('/product', (req, res) => {
         quantity: req.body.quantity,
         measurementUnit: req.body.measurementUnit
       }
-    );
-    return res.status(200).send({
-      success: true,
-      message: 'success'
+    ).then(() => {
+      return res.status(200).send({
+        success: true,
+        message: 'success'
+      });
+    });
+  }
+});
+
+app.delete('/product/:productId', (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      success: false,
+      message: 'body is needed ya fool'
+    });
+  } else {
+    const queryString = `DELETE FROM shopping_list WHERE id = $(id)`;
+    db.none(
+      queryString,
+      {
+        id: req.params.productId
+      }
+    ).then(() => {
+      return res.status(200).send({
+        success: true,
+        message: 'success'
+      });
     });
   }
 });
@@ -54,23 +77,25 @@ app.post('/finish', (req, res) => {
       message: 'body is needed ya fool'
     });
   } else {
-    req.body.forEach(productId => {
-      const queryString = `
-      DELETE FROM shopping_list
-      WHERE id = $(id)
-      `;
-
-      db.none(
-        queryString,
-        {
-          id: productId
-        }
-      );
-    });
-    return res.status(200).send({
-      success: true,
-      message: 'success'
-    });
+    db.tx(t => {
+      const queries = req.body.map(id => {
+          return t.none(`DELETE FROM shopping_list WHERE id = $1`, [id]);
+      });
+      return t.batch(queries);
+    })
+    .then(() => {
+      return res.status(200).send({
+        success: true,
+        message: 'success'
+      });
+    })
+    .catch((error) => {
+      return res.status(500).send({
+        success: false,
+        message: error
+      });
+    })
+    ;
   }
 });
 
